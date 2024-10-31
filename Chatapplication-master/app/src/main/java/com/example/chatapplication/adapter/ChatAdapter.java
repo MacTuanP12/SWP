@@ -12,8 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.chatapplication.R;
 import com.example.chatapplication.model.Chat;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
@@ -31,7 +29,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     @NonNull
     @Override
     public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_chat, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.chat_item, parent, false);
         return new ChatViewHolder(view);
     }
 
@@ -40,20 +38,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         Chat chat = chatList.get(position);
         holder.chatName.setText(chat.getChatName());
         holder.lastMessage.setText(chat.getLastMessage());
-
-        // Lấy URL của ảnh từ Firebase Storage
-        StorageReference profileImageRef = FirebaseStorage.getInstance().getReference().child("profileImages/" + chat.getProfileImageUrl());
-
-        // Sử dụng Glide để tải ảnh từ Firebase Storage
-        profileImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-            Glide.with(context)
-                    .load(uri)
-                    .placeholder(R.drawable.profile_placeholder)
-                    .into(holder.profileImage);
-        }).addOnFailureListener(e -> {
-
-            holder.profileImage.setImageResource(R.drawable.profile_placeholder);
-        });
+        Glide.with(context).load(chat.getProfileImageUrl()).into(holder.profileImage);
 
         holder.itemView.setOnClickListener(v -> listener.onChatClick(chat));
     }
@@ -67,11 +52,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         void onChatClick(Chat chat);
     }
 
-    public static class ChatViewHolder extends RecyclerView.ViewHolder {
+    static class ChatViewHolder extends RecyclerView.ViewHolder {
         ImageView profileImage;
         TextView chatName, lastMessage;
 
-        public ChatViewHolder(@NonNull View itemView) {
+        ChatViewHolder(View itemView) {
             super(itemView);
             profileImage = itemView.findViewById(R.id.profileImage);
             chatName = itemView.findViewById(R.id.chatName);

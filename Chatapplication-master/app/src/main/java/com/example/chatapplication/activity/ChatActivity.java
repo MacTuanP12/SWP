@@ -1,85 +1,127 @@
 package com.example.chatapplication.activity;
 
+import android.os.Bundle;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 import com.example.chatapplication.R;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.DatabaseReference;
+import com.example.chatapplication.adapter.MessageAdapter;
+import com.example.chatapplication.model.Message;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ChildEventListener;
-import android.os.Bundle;
-import android.widget.ListView;
-import android.widget.EditText;
-import android.widget.Button;
-import android.widget.ArrayAdapter;
-import android.view.View;
-import android.util.Log;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
+    private RecyclerView recyclerViewMessages;
+    private MessageAdapter messageAdapter;
+    private List<Message> messageList;
+    private ImageView recipientProfileImage;
+    private TextView recipientName;
+    private EditText editTextMessage;
+    private Button buttonSend;
 
-    private FirebaseDatabase database;
-    private DatabaseReference messagesRef;
-    private ListView chatListView;
-    private EditText messageField;
-    private Button sendButton;
-    private List<String> messagesList = new ArrayList<>();
-    private ArrayAdapter<String> adapter;
+    private DatabaseReference chatRef;
+    private String currentUserId;
+    private String chatId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat); // Liên kết với layout activity_chat.xml
+        setContentView(R.layout.activity_chat);
 
-        // Khởi tạo Firebase và các thành phần giao diện
-        database = FirebaseDatabase.getInstance();
-        messagesRef = database.getReference("messages");
-        chatListView = findViewById(R.id.chat_list);
-        messageField = findViewById(R.id.message_field);
-        sendButton = findViewById(R.id.send_button);
 
-        // Thiết lập adapter cho ListView
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, messagesList);
-        chatListView.setAdapter(adapter);
+        recyclerViewMessages = findViewById(R.id.recyclerViewMessages);
+        recipientProfileImage = findViewById(R.id.recipientProfileImage);
+        recipientName = findViewById(R.id.recipientName);
+        editTextMessage = findViewById(R.id.editTextMessage);
+        buttonSend = findViewById(R.id.buttonSend);
 
-        // Lắng nghe các tin nhắn mới
-        messagesRef.addChildEventListener(new ChildEventListener() {
+
+        recyclerViewMessages.setLayoutManager(new LinearLayoutManager(this));
+        messageList = new ArrayList<>();
+
+
+        currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        messageAdapter = new MessageAdapter(this, messageList, currentUserId);
+        recyclerViewMessages.setAdapter(messageAdapter);
+
+
+        String recipientNameText = getIntent().getStringExtra("recipientName");
+        String recipientProfileUrl = getIntent().getStringExtra("recipientProfileUrl");
+        chatId = getIntent().getStringExtra("chatId");
+
+
+        recipientName.setText(recipientNameText);
+        Glide.with(this).load(recipientProfileUrl).placeholder(R.drawable.profile_placeholder).into(recipientProfileImage);
+
+
+        chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatId);
+
+
+        loadMessages();
+
+
+        buttonSend.setOnClickListener(v -> sendMessage());
+    }
+
+
+    private void sendMessage() {
+        String messageText = editTextMessage.getText().toString().trim();
+        if (!messageText.isEmpty()) {
+
+            String messageId = chatRef.push().getKey();
+
+
+            Message message = new Message(messageText, currentUserId, System.currentTimeMillis());
+
+
+            chatRef.child(messageId).setValue(message);
+            editTextMessage.setText("");
+        }
+    }
+
+
+    private void loadMessages() {
+        chatRef.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
-                String newMessage = dataSnapshot.getValue(String.class);
-                if (newMessage != null) {
-                    messagesList.add(newMessage);
-                    adapter.notifyDataSetChanged();
-                    chatListView.setSelection(messagesList.size() - 1); // Cuộn xuống tin nhắn mới nhất
-                }
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Message message = dataSnapshot.getValue(Message.class);
+                messageList.add(message);
+                messageAdapter.notifyDataSetChanged();
+                recyclerViewMessages.scrollToPosition(messageList.size() - 1);
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String prevChildKey) {}
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+
+            }
 
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {}
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
 
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String prevChildKey) {}
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+
+            }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.w("ChatActivity", "loadPost:onCancelled", databaseError.toException());
-            }
-        });
 
-        // Logic nút gửi tin nhắn
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String message = messageField.getText().toString().trim();
-                if (!message.isEmpty()) {
-                    messagesRef.push().setValue(message); // Gửi tin nhắn đến Firebase
-                    messageField.setText(""); // Xóa nội dung nhập sau khi gửi
-                }
             }
         });
     }

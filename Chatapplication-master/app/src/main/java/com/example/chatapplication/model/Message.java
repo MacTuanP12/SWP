@@ -1,26 +1,33 @@
 package com.example.chatapplication.model;
 
 public class Message {
-    private String senderId;
-    private String text;
-    private long timestamp;
+    private String messageText; // Nội dung tin nhắn
+    private String senderId;    // ID của người gửi
+    private long timestamp;     // Thời gian gửi tin nhắn
 
-
-    public Message() {}
-
-    public Message(String senderId, String text, long timestamp) {
+    // Constructor
+    public Message(String messageText, String senderId, long timestamp) {
+        this.messageText = messageText;
         this.senderId = senderId;
-        this.text = text;
         this.timestamp = timestamp;
     }
 
+    // Default constructor (cần thiết cho Firebase)
+    public Message() {
+    }
 
-    public String getSenderId() { return senderId; }
-    public void setSenderId(String senderId) { this.senderId = senderId; }
+    // Getter cho messageText
+    public String getMessageText() {
+        return messageText;
+    }
 
-    public String getText() { return text; }
-    public void setText(String text) { this.text = text; }
+    // Getter cho senderId
+    public String getSenderId() {
+        return senderId;
+    }
 
-    public long getTimestamp() { return timestamp; }
-    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+    // Getter cho timestamp
+    public long getTimestamp() {
+        return timestamp;
+    }
 }

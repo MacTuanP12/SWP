@@ -1,3 +1,4 @@
+<!-- res/layout/activity_chat_list.xml -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -5,15 +6,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewChatList"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabNewChat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_new_chat"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:contentDescription="Start a new chat" />
+        android:layout_height="match_parent"
+        android:padding="8dp" />
 
 </RelativeLayout>

@@ -1,10 +1,10 @@
 package com.example.chatapplication.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,10 +14,13 @@ import com.example.chatapplication.model.Message;
 import java.util.List;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
+    private Context context;
     private List<Message> messageList;
-    private String currentUserId; // ID của người dùng hiện tại để xác định tin nhắn gửi đi hoặc nhận
+    private String currentUserId; // ID của người dùng hiện tại
 
-    public MessageAdapter(List<Message> messageList, String currentUserId) {
+    // Constructor
+    public MessageAdapter(Context context, List<Message> messageList, String currentUserId) {
+        this.context = context;
         this.messageList = messageList;
         this.currentUserId = currentUserId;
     }
@@ -25,7 +28,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @NonNull
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.message_item, parent, false);
         return new MessageViewHolder(view);
     }
 
@@ -33,16 +36,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messageList.get(position);
 
+        // Hiển thị tin nhắn ở bên phải nếu người gửi là người dùng hiện tại
         if (message.getSenderId().equals(currentUserId)) {
-            // Tin nhắn gửi đi
-            holder.textMessageSent.setVisibility(View.VISIBLE);
-            holder.textMessageSent.setText(message.getText());
-            holder.textMessageReceived.setVisibility(View.GONE);
+            holder.textMessageRight.setText(message.getMessageText());
+            holder.textMessageRight.setVisibility(View.VISIBLE);
+            holder.textMessageLeft.setVisibility(View.GONE);
         } else {
-            // Tin nhắn nhận được
-            holder.textMessageReceived.setVisibility(View.VISIBLE);
-            holder.textMessageReceived.setText(message.getText());
-            holder.textMessageSent.setVisibility(View.GONE);
+            // Hiển thị tin nhắn ở bên trái nếu là tin nhắn của người khác
+            holder.textMessageLeft.setText(message.getMessageText());
+            holder.textMessageLeft.setVisibility(View.VISIBLE);
+            holder.textMessageRight.setVisibility(View.GONE);
         }
     }
 
@@ -51,13 +54,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return messageList.size();
     }
 
-    class MessageViewHolder extends RecyclerView.ViewHolder {
-        TextView textMessageSent, textMessageReceived;
+    static class MessageViewHolder extends RecyclerView.ViewHolder {
+        TextView textMessageRight, textMessageLeft;
 
-        public MessageViewHolder(@NonNull View itemView) {
+        MessageViewHolder(View itemView) {
             super(itemView);
-            textMessageSent = itemView.findViewById(R.id.text_message_sent);
-            textMessageReceived = itemView.findViewById(R.id.text_message_received);
+            textMessageRight = itemView.findViewById(R.id.text_message_right);
+            textMessageLeft = itemView.findViewById(R.id.text_message_left);
         }
     }
 }

@@ -1,17 +1,42 @@
-<!-- activity_chat.xml -->
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- RecyclerView cho danh sách tin nhắn -->
+
+    <LinearLayout
+        android:id="@+id/recipient_info_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/recipientProfileImage"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/profile_placeholder" />
+
+        <TextView
+            android:id="@+id/recipientName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recipient Name"
+            android:textSize="18sp"
+            android:textColor="@android:color/black" />
+    </LinearLayout>
+
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/chat_list"
+        android:id="@+id/recyclerViewMessages"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_below="@id/recipient_info_container"
         android:layout_above="@+id/message_container"
         android:padding="8dp" />
 
-    <!-- Khu vực nhập tin nhắn và nút gửi -->
+
     <LinearLayout
         android:id="@+id/message_container"
         android:layout_width="match_parent"
@@ -21,17 +46,18 @@
         android:padding="8dp">
 
         <EditText
-            android:id="@+id/message_field"
+            android:id="@+id/editTextMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Nhập tin nhắn..."
+            android:hint="Type your massage..."
+            android:minHeight="48dp"
             android:padding="10dp" />
 
         <Button
-            android:id="@+id/send_button"
+            android:id="@+id/buttonSend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gửi" />
+            android:text="Send" />
     </LinearLayout>
 </RelativeLayout>
